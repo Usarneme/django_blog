@@ -466,21 +466,37 @@ NOTE: Instance passed to PostForm will populate the fields of the form from the 
 {% if user.is_authenticated %} ... {% endif %}
 ```
 
+- Add a link to the admin page so you can log in and out without typing in the url by editing blog/templates/blog/base.html
+
+```html
+<a href="/admin" class="top-menu">Admin</a>
+```
+
 ---
 
 ## Setup/Clone instructions
 
 - Clone the repository: `git clone https://github.com/Usarneme/django_blog`
 - Enter the new directory: `cd django_blog`
-- Ensure myvenv is setup correctly: `python3 venv myvenv`
+- Ensure myvenv is setup correctly: `python3 -m venv myvenv`
 - Install dependencies: `pip install -r requirements.txt`
 - Run the server: `python manage.py runserver`
 - Open your browser to localhost:8080 to view the project
 
 ---
 
-TODO
+### LICENSE
 
-```
+GPLv3
 
-```
+---
+
+### Attribution/Credits
+
+The majority of the code in this repository is from the Django Girls tutorial: [https://tutorial.djangogirls.org/en/](https://tutorial.djangogirls.org/en/). Which is licensed under Creative Commons Attribution-ShareAlike 4.0 International License. To view a copy of this license, visit https://creativecommons.org/licenses/by-sa/4.0/
+
+I added styles, the logout features, and will continue to add other features as I work to expand this project and learn more about Django.
+
+---
+
+### Thanks!
