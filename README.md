@@ -52,28 +52,36 @@ NOTE: manage.py script that helps with management of the site, start the server,
 
 Visit https://en.wikipedia.org/wiki/List_of_tz_database_time_zones to find the time zone format, eg:
 
-> TIME_ZONE = 'America/Los_Angeles'
-> LANGUAGE_CODE = 'en-us'
+```
+TIME_ZONE = 'America/Los_Angeles'
+LANGUAGE_CODE = 'en-us'
+```
 
 - Update mysite/settings.py to add a path for serving static files (at the bottom of the file)
 
-> STATIC_URL = '/static'
-> STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+```
+STATIC_URL = '/static'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+```
 
 - Update mysite/settings.py to ensure localhost (and later your online host domain) is allowed
 
-> ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+```
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
+```
 
 - Set up a database
 
 Here I'll use sqlite3. Confirm this is in mysite/settings.py:
 
-> DATABASES = {
-> 'default': {
-> 'ENGINE': 'django.db.backends.sqlite3',
-> 'NAME': os.path.join(BASE_DIR, 'db.sqlite3')
-> }
-> }
+```
+DATABASES = {
+  'default': {
+    'ENGINE': 'django.db.backends.sqlite3',
+    'NAME': os.path.join(BASE_DIR, 'db.sqlite3')
+  }
+}
+```
 
 - Create the database using Python migration command
 
@@ -93,8 +101,12 @@ Open your browser of choice and navigate to http://localhost:8080 to view your s
 
 ## Setup/Clone instructions
 
-- `git clone https://github.com/Usarneme/django_blog`
-- `cd django_blog`
+- Clone the repository: `git clone https://github.com/Usarneme/django_blog`
+- Enter the new directory: `cd django_blog`
+- Ensure myvenv is setup correctly: `python3 venv myvenv`
+- Install dependencies: `pip install -r requirements.txt`
+- Run the server: `python manage.py runserver`
+- Open your browser to localhost:8080 to view the project
 
 ---
 
