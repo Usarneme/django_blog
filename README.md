@@ -97,6 +97,79 @@ python manage.py runserver 0.0.0.0:8080
 
 Open your browser of choice and navigate to http://localhost:8080 to view your started Django web app project!
 
+- Create the blog boilerplate using the startapp command (see: https://docs.djangoproject.com/en/3.2/ref/django-admin/#startapp)
+
+```sh
+python manage.py startapp blog
+```
+
+- Configure Django to use the blog application created with the last command by editing mysite/settings.py
+
+```
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    # NEW CONTENT BELOW THIS LINE
+    'blog.apps.BlogConfig',
+]
+```
+
+- Define first model in blog/models.py
+
+```py
+from django.conf import settings
+from django.db import models
+from django.utils import timezone
+
+
+class Post(models.Model):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    title = models.CharField(max_length=200)
+    text = models.TextField()
+    created_date = models.DateTimeField(default=timezone.now)
+    published_date = models.DateTimeField(blank=True, null=True)
+
+    def publish(self):
+        self.published_date = timezone.now()
+        self.save()
+
+    def __str__(self):
+        return self.title
+```
+
+- Generate a database migration to add our newly-created Post model
+
+```sh
+python manage.py makemigrations blog
+```
+
+- Update the database using the newly-created migration
+
+```sh
+python manage.py migrate blog
+```
+
+- Rewrite blog/admin.py so we can administrate (CRUD) our blog model as administrators
+
+```py
+from django.contrib import admin
+from .models import Post
+
+admin.site.register(Post)
+```
+
+- Create a superuser account to access admin capabilities. Follow the prompts to create the user after running this command in your terminal:
+
+```sh
+python manage.py createsuperuser
+```
+
+NOTE: You can now log in by running the server and visiting localhost:8000/admin. The admin view also displays your Blog function and Posts class so you can create new posts. Create a few blog posts to test the functionality.
+
 ---
 
 ## Setup/Clone instructions
