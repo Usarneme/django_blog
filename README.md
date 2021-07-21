@@ -212,27 +212,252 @@ mkdir blog/templates
 mkdir blog/templates/blog
 ```
 
+- Update our blog/views.py to include our Post model, the result of our queryset on the db, which is then passed to the render function
+
+```py
+from django.shortcuts import render
+from django.utils import timezone
+from .models import Post
+
+def post_list(request):
+    posts = Post.objects.filter(published_date__lte=timezone.now()).order_by('published_date')
+    return render(request, 'blog/post_list.html', {'posts': posts})
+```
+
+- Create a statics folder in the blog
+
+```sh
+mkdir blog/static
+```
+
+- Create a CSS file in the static folder
+
+```sh
+mkdir blog/static/css
+touch blog/static/css/blog.css
+```
+
+- Create a base html file to hold layout for multiple pages at blog/templates/blog/base.html
+
+```sh
+touch blog/templates/blog/base.html
+```
+
+- Add content to the base.html file, including loading the static folder/files at the very top of the blog/templates/blog/post_list.html and the CSS styles via file reference between the opening and closing <head> tags:
+
+```html
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog Home</title>
+    <link rel="stylesheet" href="{% static 'css/blog.css' %}" />
+  </head>
+
+  <body>
+    <header class="page-header">
+      <div class="container">
+        <h1><a href="/">Django Blog</a></h1>
+      </div>
+    </header>
+    <main>{% block content %} {% endblock %}</main>
+  </body>
+</html>
+```
+
 - Create the first template html file within blog/templates/blog
 
 ```sh
 touch blog/templates/blog/post_list.html
 ```
 
-- Add some placeholder markup to your blog/templates/blog/post_list.html file
+- Add some markup to your blog/templates/blog/post_list.html file to display each of the posts individually inside of the layout container
 
 ```html
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Blog Home</title>
-  </head>
+{% extends 'blog/base.html' %} {% block content %} {% for post in posts %}
+<article>
+  <time>published: {{ post.published_date }}</time>
+  <h2><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h2>
+  <p>{{ post.text|linebreaksbr }}</p>
+</article>
+{% endfor %} {% endblock %}
+```
 
-  <body>
-    <header>
-      <h1><a href="/">Blog Home</a></h1>
-    </header>
-  </body>
-</html>
+NOTE: `post.text|linebreaksbr` pipes the post text into a Django filter method that replaces python newline characters with html <br> tags. See: https://www.djangotemplatetagsandfilters.com/filters/linebreaksbr/
+
+NOTE: pk=post.pk is primary key, this sets the link address to be the primary key of the post so each link will be unique and tied to the post ID.
+
+- Create a url by updating the urlpatterns matther in blog/urls.py for the post_detail view
+
+```py
+urlpatterns = [
+    path('', views.post_list, name='post_list'),
+    path('post/<int:pk>/', views.post_detail, name='post_detail'),
+]
+```
+
+NOTE: the integer in the url will be matched dynamically and passed to the view as a variable named pk
+
+- Add a post_details view in blog/views.py
+
+```py
+def post_detail(request, pk):
+  post = get_object_or_404(Post, pk=pk)
+  return render(request, 'blog/post_detail.html', {'post': post})
+```
+
+NOTE: get_object_or_404 is a Django method that will return the 404/not found page if there is no post matching at primary key (or in general, no matcher for that route)
+
+- Create the post_details html template in blog/templates/blog/post_detail.html
+
+```html
+{% extends 'blog/base.html' %} {% block content %}
+<article class="post">
+  <aside class="actions">
+    <a class="btn btn-default" href="{% url 'post_edit' pk=post.pk %}">
+      Edit Post
+    </a>
+  </aside>
+  {% if post.published_date %}
+  <time class="date"> {{ post.published_date }} </time>
+  {% endif %}
+  <h2>{{ post.title }}</h2>
+  <p>{{ post.text|linebreaksbr }}</p>
+</article>
+{% endblock %}
+```
+
+- Create a forms.py file to add our own create and update blog post form
+
+```sh
+touch blog/forms.py
+```
+
+- Add ViewModel content to blog/forms.py
+
+```py
+from django import forms
+from .models import Post
+
+
+class PostForm(forms.ModelForm):
+
+    class Meta:
+        model = Post
+        fields = ('title', 'text',)
+```
+
+NOTE: PostForm is the name of the new class, forms.ModelForm is Django connecting the view to the model for us, and the Meta class ties this viewmodel to our Post model and tells Django which input fields to expose (since author is logged-in user and creation_date is timezone.now())
+
+- Create an icons folder and save an icon svg to it
+
+```sh
+mkdir blog/templates/blog/icons
+echo "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"16\" height=\"16\" fill=\"currentColor\" class=\"bi bi-file-earmark-plus\" viewBox=\"0 0 16 16\">
+  <path d=\"M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V11a.5.5 0 0 1-1 0V9.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z\"/>
+  <path d=\"M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z\"/>
+</svg>" >> blog/templates/blog/icons/file-plus.svg
+```
+
+- Add the icon and a link to create a new blog post to blog/templates/blog/base.html
+
+```html
+<a href="{% url 'post_new' %}" class="top-menu">
+  {% include './icons/file-plus.svg' %}
+</a>
+```
+
+- Add the path to the post_new view in the urlpatterns array in blog/urls.py
+
+```py
+path('post/new/', views.post_new, name='post_new')
+```
+
+- Implement the post_new view in blog/views.py
+
+````py
+# near the top add the import
+from .forms import PostForm
+# other content unchanged...
+# add the post_new function definition
+def post_new(request):
+  form = PostForm()
+  return render(request, 'blog/post_edit.html', {'form': form})
+
+- Create the post_edit.html template in blog/templates/blog
+
+```sh
+touch blog/templates/blog/post_edit.html
+````
+
+- Add html to the newly created blog/templates/blog/post_edit.html template
+
+```html
+{% extends 'blog/base.html' %} {% block content %}
+<h2>New post</h2>
+<form method="POST" class="post-form">
+  {% csrf_token %} {{ form.as_p }}
+  <button type="submit" class="save btn btn-default">Save</button>
+</form>
+{% endblock %}
+```
+
+NOTE: Cross Site Request Forgery (CRSF) tokens explained: https://stackoverflow.com/questions/5207160/what-is-a-csrf-token-what-is-its-importance-and-how-does-it-work Django will complain if we do not include this directive
+
+- Update the post_new function in blog/views.py to handle submitting the post form
+
+```py
+# add the redirect import to the top
+from django.shortcuts import redirect
+# rest of the code is unchanged until we get to post_new
+def post_new(request):
+  if request.method == "POST":
+    form = PostForm(request.POST)
+    if form.is_valid():
+        post = form.save(commit=False)
+        post.author = request.user
+        post.published_date = timezone.now()
+        post.save()
+        return redirect('post_detail', pk=post.pk)
+  else:
+    form = PostForm()
+  return render(request, 'blog/post_edit.html', {'form': form})
+```
+
+- Add matcher to blog/urls.py for the Edit Post route
+
+```py
+path('post/<int:pk>/edit/', views.post_edit, name='post_edit'),
+```
+
+- Add route handler to blog/views.py to server the edit post template
+
+```py
+def post_edit(request, pk):
+    post = get_object_or_404(Post, pk=pk)
+    if request.method == "POST":
+        form = PostForm(request.POST, instance=post)
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            post.published_date = timezone.now()
+            post.save()
+            return redirect('post_detail', pk=post.pk)
+    else:
+        form = PostForm(instance=post)
+    return render(request, 'blog/post_edit.html', {'form': form})
+```
+
+NOTE: Instance passed to PostForm will populate the fields of the form from the values retrieved from the database with the get_object_or_404 query. See: https://docs.djangoproject.com/en/2.2/topics/forms/#instantiating-processing-and-rendering-forms
+
+- Lock down post_new anchor link to only be visible for logged in users in blog/templates/blog/base.html
+
+```html
+{% if user.is_authenticated %}
+<a href="{% url 'post_new' %}" class="top-menu">
+  {% include './icons/file-plus.svg' %}
+</a>
+{% endif %}
 ```
 
 ---
@@ -249,3 +474,7 @@ touch blog/templates/blog/post_list.html
 ---
 
 TODO
+
+```
+
+```

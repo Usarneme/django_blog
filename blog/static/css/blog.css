@@ -1,0 +1,23 @@
+:root {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-size: 20px;
+}
+
+a {
+  text-decoration: none;
+  color: unset;
+}
+
+body {
+  background: rgb(200, 200, 200);
+  font-size: 0.95rem;
+}
+
+article {
+  border: 2px solid slategray;
+  margin: 22px;
+  padding: 11px;
+  background: rgba(255, 255, 255, 0.6);
+}
