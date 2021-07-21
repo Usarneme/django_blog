@@ -460,6 +460,12 @@ NOTE: Instance passed to PostForm will populate the fields of the form from the 
 {% endif %}
 ```
 
+- Also lock down the post_edit link in blog/templates/blog/post_detail.html
+
+```html
+{% if user.is_authenticated %} ... {% endif %}
+```
+
 ---
 
 ## Setup/Clone instructions
