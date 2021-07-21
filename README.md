@@ -9,7 +9,7 @@ A blog website built using Python+Django
 - Set up a virtual environment to have consistent versions of your dependencies in your project
 
 ```sh
-python3 venv NAME
+python3 -m venv NAME
 ```
 
 Replacing NAME with your project’s name.
