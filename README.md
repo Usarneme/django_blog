@@ -170,6 +170,71 @@ python manage.py createsuperuser
 
 NOTE: You can now log in by running the server and visiting localhost:8000/admin. The admin view also displays your Blog function and Posts class so you can create new posts. Create a few blog posts to test the functionality.
 
+- Update mysite/urls.py to import defined route handlers from your blog site
+
+```py
+from django.contrib import admin
+from django.urls import path, include
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('', include('blog.urls')),
+]
+```
+
+- Create the imported blog urls file at blog/urls.py, add path import and blog views reference, and our first view the Posts list
+
+```py
+from django.urls import path
+from . import views
+
+urlpatterns = [
+    path('', views.post_list, name='post_list'),
+]
+```
+
+- Define the referenced view in blog/views.py
+
+```py
+def post_list(request):
+    return render(request, 'blog/post_list.html', {})
+```
+
+- Create a templates folder within blog to hold all of our html templates
+
+```sh
+mkdir blog/templates
+```
+
+- Create the blog directory within templates to hold our views templates for the blog route
+
+```sh
+mkdir blog/templates/blog
+```
+
+- Create the first template html file within blog/templates/blog
+
+```sh
+touch blog/templates/blog/post_list.html
+```
+
+- Add some placeholder markup to your blog/templates/blog/post_list.html file
+
+```html
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Blog Home</title>
+  </head>
+
+  <body>
+    <header>
+      <h1><a href="/">Blog Home</a></h1>
+    </header>
+  </body>
+</html>
+```
+
 ---
 
 ## Setup/Clone instructions
